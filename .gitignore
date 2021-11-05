@@ -1,0 +1,12 @@
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+# Datasource local storage ignored files
+/../../../../../../:\Users\Сатжан\IdeaProjects\jpa_lessons_satzhan\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+target/
+.idea/
+jpa_lessons_satzhan.iml
+
