@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Create {
+
+    private static Scanner scanner = new Scanner(System.in);
+
+    private static EntityManagerFactory factory = Persistence.createEntityManagerFactory("main");
+
     public static void main(String[] args) {
 
         System.out.println("Создание категории[1]\nИзменение товара[2]\nУдаление категории[3]\nВыберите действие: ");
@@ -32,13 +37,10 @@ public class Create {
         }
 
     }
+
     private static void create() {
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("main");
+
         EntityManager manager = factory.createEntityManager();
-
-        Scanner scanner = new Scanner(System.in);
-
-        Product product = new Product();
 
         TypedQuery<Category> query2 = manager.createQuery("Select c from Category c", Category.class);
         List<Category> categories = query2.getResultList();
@@ -55,17 +57,17 @@ public class Create {
             manager.getTransaction().begin();
             System.out.println("Введите название категории: ");
             String categoryNameIn = scanner.nextLine();
-            TypedQuery<Long> query4 = manager.createQuery("Select count(c.id) from Category c where c.name = ?1 ", Long.class);
-            query4.setParameter(1, categoryNameIn);
-            List<Long> categories3 = query4.getResultList();
+            TypedQuery<Long> selectedCatQuery = manager.createQuery("Select count(c.id) from Category c where c.name = ?1 ", Long.class);
+            selectedCatQuery.setParameter(1, categoryNameIn);
+            List<Long> categories3 = selectedCatQuery.getResultList();
             // while (categories3.get(0) != 0)
             while (!categories3.contains(0L))
             {
                 System.out.println("Такая категория уже существует!");
                 System.out.println("Введите название категории: ");
                 categoryNameIn = scanner.nextLine();
-                query4.setParameter(1, categoryNameIn);
-                categories3 = query4.getResultList();
+                selectedCatQuery.setParameter(1, categoryNameIn);
+                categories3 = selectedCatQuery.getResultList();
             }
             category.setName(categoryNameIn);
             System.out.println("Введите характеристики категории через запятую: ");
@@ -88,25 +90,24 @@ public class Create {
             e.printStackTrace();
         }
     }
+
     private static void change() {
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("main");
+
         EntityManager manager = factory.createEntityManager();
-        Scanner scanner = new Scanner(System.in);
-        Product product = new Product();
         // Создание запроса в JPQL
-        TypedQuery<Product> query2 = manager.createQuery("select p from Product p", Product.class);
-        List<Product> products = query2.getResultList();
+        TypedQuery<Product> selectedProdQuery = manager.createQuery("select p from Product p", Product.class);
+        List<Product> products = selectedProdQuery.getResultList();
 
         try {
             // Еще одно задание: реализовать обновление товара, т.е.
             // Запрос id товара, потом ввести новое название и новую цену, затем необходимо записать запрошенные данные в базу.
             // Изменить значения характеристик товара
-            for ( Product prod : products) {
+            for (Product prod : products) {
                 System.out.println(prod.getName() + "[" + prod.getId() + "]");
             }
             System.out.println("Выберите номер товара: ");
             String productIdIn = scanner.nextLine();
-            product = manager.find(Product.class, Long.parseLong(productIdIn));
+            Product product = manager.find(Product.class, Long.parseLong(productIdIn));
             // если ничего не вводится, то должно остаться предыдущее значение при изменении
             // товара и его характеристик
             System.out.println("Введите новое название: ");
@@ -126,12 +127,12 @@ public class Create {
                 System.out.println(feature.getFeatures() + "[" + feature.getId() + "]");
                 // ?1 -> ? - параметр, 1 - номер параметра. Эти параметры называются порядковыми.
                 // :a -> : - параметр, "a" - название параметра. Эти параметры называются наименованными.
-                TypedQuery<FeatureValue> query4 = manager
+                TypedQuery<FeatureValue> selectedFValueQuery = manager
                         .createQuery("select fv from FeatureValue fv where fv.product.id = ?1 and fv.feature.id = ?2", FeatureValue.class);
-                query4.setParameter(1, product.getId());
+                selectedFValueQuery.setParameter(1, product.getId());
                 //query4.setParameter("a", product.getId());
-                query4.setParameter(2, feature.getId());
-                List <FeatureValue> featureValues = query4.getResultList();
+                selectedFValueQuery.setParameter(2, feature.getId());
+                List <FeatureValue> featureValues = selectedFValueQuery.getResultList();
                 for (FeatureValue fVal: featureValues) {
                     System.out.println(fVal.getFeature().getFeatures());
                     System.out.println("Введите новое значение: ");
@@ -152,11 +153,11 @@ public class Create {
     }
 
     private static void delete() {
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory("main");
+
         EntityManager manager = factory.createEntityManager();
-        Scanner scanner = new Scanner(System.in);
-        TypedQuery<Category> query = manager.createQuery("Select c from Category c", Category.class);
-        List<Category> categories = query.getResultList();
+
+        TypedQuery<Category> categoryToDelQuery = manager.createQuery("Select c from Category c", Category.class);
+        List<Category> categories = categoryToDelQuery.getResultList();
         for (Category category: categories) {
             System.out.println(category.getName() + "[" + category.getId() + "]");
         }
@@ -164,10 +165,10 @@ public class Create {
         String categoryId = scanner.nextLine();
        // Удаление объекта локально от EntityManager, превращая category4 из сущности
         // в обычный объект. Удаление из базы происходит, если удаление стоит в рамках транзакции.
-        Category category4 = manager.find(Category.class, Long.parseLong(categoryId));
+        Category categoryToDelete = manager.find(Category.class, Long.parseLong(categoryId));
         try {
             manager.getTransaction().begin();
-            manager.remove(category4);
+            manager.remove(categoryToDelete);
             manager.getTransaction().commit();
         }
         catch (Exception e) {

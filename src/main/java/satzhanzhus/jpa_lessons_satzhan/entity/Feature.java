@@ -15,7 +15,7 @@ public class Feature {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany (mappedBy = "feature")
+    @OneToMany(mappedBy = "feature")
     private List<FeatureValue> featureValues;
 
     private String features;

@@ -14,7 +14,7 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany (mappedBy = "product")
+    @OneToMany(mappedBy = "product")
     private List<FeatureValue> featureValues;
 
     private String name;

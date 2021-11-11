@@ -11,11 +11,11 @@ public class FeatureValue {
     private Long id;
 
     @ManyToOne
-    @JoinColumn (name = "product_id")
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne
-    @JoinColumn (name = "feature_id")
+    @JoinColumn(name = "feature_id")
     private Feature feature;
 
     @Column(name = "feature_value")
